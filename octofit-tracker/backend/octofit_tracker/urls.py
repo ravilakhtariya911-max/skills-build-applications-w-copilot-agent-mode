@@ -16,7 +16,21 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from .views import api_root
+
+from .views import api_root as original_api_root
+from django.http import JsonResponse
+import os
+
+def api_root(request, format=None):
+    CODESPACE_NAME = os.environ.get('CODESPACE_NAME')
+    base_url = f"https://{CODESPACE_NAME}-8000.app.github.dev" if CODESPACE_NAME else request.build_absolute_uri('/')[:-1]
+    return JsonResponse({
+        'users': f'{base_url}/api/users/',
+        'teams': f'{base_url}/api/teams/',
+        'activities': f'{base_url}/api/activities/',
+        'workouts': f'{base_url}/api/workouts/',
+        'leaderboard': f'{base_url}/api/leaderboard/',
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
